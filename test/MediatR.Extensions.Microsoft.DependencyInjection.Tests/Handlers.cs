@@ -41,6 +41,16 @@ namespace MediatR.Extensions.Microsoft.DependencyInjection.Tests
 
     }
 
+    public class Kinged : INotification
+    {
+        
+    }
+
+    public class Konged : Kinged
+    {
+        
+    }
+
     class InternalPing : IRequest { }
 
     public class GenericHandler : INotificationHandler<INotification>
@@ -170,4 +180,35 @@ namespace MediatR.Extensions.Microsoft.DependencyInjection.Tests
         }
     }
 
+
+    class KingedHandler : INotificationHandler<Kinged>
+    {
+        private readonly Logger _logger;
+        public const string HandledLog = "KingedHandler";
+
+        public KingedHandler(Logger logger)
+        {
+            _logger = logger;
+        }
+        public Task Handle(Kinged notification, CancellationToken cancellationToken)
+        {
+            _logger.Messages.Add(HandledLog);
+            return Task.CompletedTask;
+        }
+    }
+    // class KongedHandler : INotificationHandler<Konged>
+    // {
+    //     private readonly Logger _logger;
+    //     public const string HandledLog = "KongedHandler";
+    //
+    //     public KongedHandler(Logger logger)
+    //     {
+    //         _logger = logger;
+    //     }
+    //     public Task Handle(Konged notification, CancellationToken cancellationToken)
+    //     {
+    //         // _logger.Messages.Add(HandledLog);
+    //         return Task.CompletedTask;
+    //     }
+    // }
 }
