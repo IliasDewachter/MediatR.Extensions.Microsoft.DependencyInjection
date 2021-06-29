@@ -187,7 +187,7 @@ namespace MediatR.Registration
                 {
                     var assembliesToScan = interfaceType.GenericTypeArguments.Select(x => x.Assembly).Distinct();
 
-                    foreach (var type in FindAllMatchingGenericParameters(interfaceType, templateType, assembliesToScan))
+                    foreach (var type in FindMatchingGenericTypes(interfaceType, templateType, assembliesToScan))
                     {
                         yield return type;
                     }
@@ -251,7 +251,7 @@ namespace MediatR.Registration
             services.AddTransient(serviceType, implementationType);
         }
 
-        private static IEnumerable<Type> FindAllMatchingGenericParameters(Type interfaceType, Type templateType, IEnumerable<Assembly> assembliesToScan)
+        private static IEnumerable<Type> FindMatchingGenericTypes(Type interfaceType, Type templateType, IEnumerable<Assembly> assembliesToScan)
         {
             var allInheritingGenericTypeArguments = interfaceType.GenericTypeArguments.Select(x =>
                 assembliesToScan
@@ -259,7 +259,7 @@ namespace MediatR.Registration
                     .Where(x.IsAssignableFrom).ToArray()
             ).ToArray();
 
-            var totalOptions = allInheritingGenericTypeArguments.Aggregate(0, (acc, curr) => acc + curr.Count());
+            var totalOptions = allInheritingGenericTypeArguments.Aggregate(0, (acc, curr) => acc + curr.Length);
             var inheritingInterfaceTypes = new List<Type>
             {
                 interfaceType
