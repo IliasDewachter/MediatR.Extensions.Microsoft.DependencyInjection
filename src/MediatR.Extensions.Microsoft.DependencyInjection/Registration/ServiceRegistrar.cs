@@ -194,7 +194,10 @@ namespace MediatR.Registration
                         ).ToArray();
 
                     var totalOptions = allInheritingGenericTypeArguments.Aggregate(0, (acc, curr) => acc + curr.Count());
-                    var inheritingInterfaceTypes = new List<Type>();
+                    var inheritingInterfaceTypes = new List<Type>
+                    {
+                        interfaceType
+                    };
 
                     var modulos = allInheritingGenericTypeArguments.Select(x => x.Length).ToArray();
                     
