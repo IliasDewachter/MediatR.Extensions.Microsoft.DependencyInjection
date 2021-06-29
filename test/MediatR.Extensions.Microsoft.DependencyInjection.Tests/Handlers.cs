@@ -196,19 +196,4 @@ namespace MediatR.Extensions.Microsoft.DependencyInjection.Tests
             return Task.CompletedTask;
         }
     }
-    // class KongedHandler : INotificationHandler<Konged>
-    // {
-    //     private readonly Logger _logger;
-    //     public const string HandledLog = "KongedHandler";
-    //
-    //     public KongedHandler(Logger logger)
-    //     {
-    //         _logger = logger;
-    //     }
-    //     public Task Handle(Konged notification, CancellationToken cancellationToken)
-    //     {
-    //         // _logger.Messages.Add(HandledLog);
-    //         return Task.CompletedTask;
-    //     }
-    // }
 }

@@ -187,38 +187,7 @@ namespace MediatR.Registration
                 {
                     var assembliesToScan = interfaceType.GenericTypeArguments.Select(x => x.Assembly).Distinct();
 
-                    var allInheritingGenericTypeArguments = interfaceType.GenericTypeArguments.Select(x =>
-                        assembliesToScan
-                            .SelectMany(y => y.GetTypes())
-                            .Where(x.IsAssignableFrom).ToArray()
-                        ).ToArray();
-
-                    var totalOptions = allInheritingGenericTypeArguments.Aggregate(0, (acc, curr) => acc + curr.Count());
-                    var inheritingInterfaceTypes = new List<Type>
-                    {
-                        interfaceType
-                    };
-
-                    var modulos = allInheritingGenericTypeArguments.Select(x => x.Length).ToArray();
-                    
-                    var divides = new decimal[allInheritingGenericTypeArguments.Length];
-                    for (var i = 0; i < allInheritingGenericTypeArguments.Length; i++)
-                    {
-                        divides[i] = allInheritingGenericTypeArguments.Skip(i + 1).Aggregate(1, (curr, array) => curr * array.Length);
-                    }
-                    
-                    for (var i = 0; i < totalOptions; i++)
-                    {
-                        var types = new Type[allInheritingGenericTypeArguments.Length];
-                        for (var j = 0; j < allInheritingGenericTypeArguments.Length; j++)
-                        {
-                            var position = (int) Math.Floor(i / divides[j]) % modulos[j];
-                            types[j] = allInheritingGenericTypeArguments[j][position];
-                        }
-                        inheritingInterfaceTypes.Add(templateType.MakeGenericType(types));
-                    }
-
-                    foreach (var type in inheritingInterfaceTypes.Distinct())
+                    foreach (var type in FindAllMatchingGenericParameters(interfaceType, templateType, assembliesToScan))
                     {
                         yield return type;
                     }
@@ -280,6 +249,45 @@ namespace MediatR.Registration
             }
 
             services.AddTransient(serviceType, implementationType);
+        }
+
+        private static IEnumerable<Type> FindAllMatchingGenericParameters(Type interfaceType, Type templateType, IEnumerable<Assembly> assembliesToScan)
+        {
+            var allInheritingGenericTypeArguments = interfaceType.GenericTypeArguments.Select(x =>
+                assembliesToScan
+                    .SelectMany(y => y.GetTypes())
+                    .Where(x.IsAssignableFrom).ToArray()
+            ).ToArray();
+
+            var totalOptions = allInheritingGenericTypeArguments.Aggregate(0, (acc, curr) => acc + curr.Count());
+            var inheritingInterfaceTypes = new List<Type>
+            {
+                interfaceType
+            };
+
+            var modulos = allInheritingGenericTypeArguments.Select(x => x.Length).ToArray();
+
+            var divides = new decimal[allInheritingGenericTypeArguments.Length];
+            for (var i = 0; i < allInheritingGenericTypeArguments.Length; i++)
+            {
+                divides[i] = allInheritingGenericTypeArguments.Skip(i + 1).Aggregate(1, (curr, array) => curr * array.Length);
+            }
+
+            for (var i = 0; i < totalOptions; i++)
+            {
+                var types = new Type[allInheritingGenericTypeArguments.Length];
+                for (var j = 0; j < allInheritingGenericTypeArguments.Length; j++)
+                {
+                    var position = (int) Math.Floor(i / divides[j]) % modulos[j];
+                    types[j] = allInheritingGenericTypeArguments[j][position];
+                }
+                inheritingInterfaceTypes.Add(templateType.MakeGenericType(types));
+            }
+
+            foreach (var type in inheritingInterfaceTypes.Distinct())
+            {
+                yield return type;
+            }
         }
     }
 }
